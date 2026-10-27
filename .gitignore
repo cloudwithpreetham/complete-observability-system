@@ -1,0 +1,27 @@
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Testing & Logs
+.pytest_cache/
+*.log
+
+# Docker / Promtail positions & storage
+positions.yaml
+/loki/chunks/
+/loki/rules/
+/prometheus/data/
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
