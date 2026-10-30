@@ -9,9 +9,29 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from opentelemetry.instrumentation.logging import LoggingInstrumentor
+
+# Dynamic trace ID & span ID injection for standard library logging
+old_factory = logging.getLogRecordFactory()
+def record_factory(*args, **kwargs):
+    record = old_factory(*args, **kwargs)
+    span = trace.get_current_span()
+    ctx = span.get_span_context() if span else None
+    if ctx and ctx.is_valid:
+        record.otelTraceID = format(ctx.trace_id, "032x")
+        record.otelSpanID = format(ctx.span_id, "016x")
+    else:
+        record.otelTraceID = "0" * 32
+        record.otelSpanID = "0" * 16
+    return record
+
+logging.setLogRecordFactory(record_factory)
 
 # Initialize Logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] trace_id=%(otelTraceID)s span_id=%(otelSpanID)s %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] trace_id=%(otelTraceID)s span_id=%(otelSpanID)s %(message)s'
+)
 logger = logging.getLogger("observability-service")
 
 # Setup OpenTelemetry Tracer with Resource Attributes
@@ -21,6 +41,7 @@ otlp_exporter = OTLPSpanExporter(endpoint="jaeger:4317", insecure=True)
 provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
 trace.set_tracer_provider(provider)
 tracer = trace.get_tracer(__name__)
+LoggingInstrumentor().instrument()
 
 # Initialize Flask & Prometheus Exporter
 app = Flask(__name__)
