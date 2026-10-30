@@ -5,10 +5,24 @@
 [![Loki](https://img.shields.io/badge/Logging-Grafana%20Loki%20v3.0-F46800?logo=grafana&logoColor=white)](#)
 [![Jaeger](https://img.shields.io/badge/Tracing-Jaeger%20v1.57-60D0E4?logo=jaeger&logoColor=white)](#)
 [![Grafana](https://img.shields.io/badge/Dashboard-Grafana%20v10.4-F46800?logo=grafana&logoColor=white)](#)
+[![Report](https://img.shields.io/badge/Internship_Report-PDF_2_Pages-10B981?logo=adobeacrobatreader&logoColor=white)](docs/PROJECT_REPORT.pdf)
 
 An integrated, cloud-native observability platform combining **Prometheus** time-series metrics, **Grafana Loki & Promtail** centralized logging, and **Jaeger** distributed request tracing into unified **Grafana** visualization dashboards.
 
-Developed as part of the **Elevate Labs DevOps Internship (Ministry of MSME, Govt. of India)**.
+Developed as part of the **Elevate Labs DevOps Internship (Ministry of MSME, Govt. of India)** — Project #3.
+
+---
+
+## 📋 Internship Deliverables Checklist
+
+Per the Elevate Labs project specification, all deliverables are fully completed:
+
+| Required Deliverable | Repository Asset | Status |
+| :--- | :--- | :---: |
+| **`docker-compose.yml`** | [`docker-compose.yml`](docker-compose.yml) | ✅ Complete |
+| **`Dashboards JSON`** | [`grafana/provisioning/dashboards/dashboard.json`](grafana/provisioning/dashboards/dashboard.json) | ✅ Complete |
+| **Log Samples & Trace Visualizations** | [`docs/screenshots/`](docs/screenshots/) (Prometheus, Jaeger, Loki, Grafana) | ✅ Complete |
+| **Project Report (1–2 Page PDF)** | [`docs/PROJECT_REPORT.pdf`](docs/PROJECT_REPORT.pdf) & [`docs/PROJECT_REPORT.md`](docs/PROJECT_REPORT.md) | ✅ Complete |
 
 ---
 
@@ -18,8 +32,8 @@ Traditional monitoring only reports whether a server is reachable (`UP` or `DOWN
 
 This project implements the **Three Pillars of Observability**:
 
-1. **Metrics:** Polled at 5s intervals by Prometheus to track throughput, error rates, and response latency.
-2. **Logs:** Aggregated in real time by Promtail reading Docker container standard output and ingested into Grafana Loki.
+1. **Metrics:** Polled at 5s intervals by Prometheus to track throughput, error rates, and response latency histograms.
+2. **Logs:** Aggregated in real time by Promtail reading Docker container standard output and ingested into Grafana Loki with metadata indexing.
 3. **Traces:** Distributed spans captured via OpenTelemetry SDK (OTLP over gRPC) and routed to Jaeger to break down single HTTP request lifecycles.
 
 ---
@@ -39,21 +53,27 @@ The system orchestrates a Python Flask microservice instrumented to simultaneous
 ```text
 complete-observability-system/
 ├── app/
+│   ├── .dockerignore                     # Docker build exclusion rules
 │   ├── app.py                            # Flask application instrumented with OpenTelemetry & Prometheus
 │   ├── Dockerfile                        # Multi-stage/Slim Python runtime container definition
 │   └── requirements.txt                  # Application & telemetry SDK dependencies
 ├── docs/
-├── architecture/                     # System architecture diagrams and specifications
+│   ├── architecture/                     # System architecture diagrams and specifications
 │   │   └── observability-architecture.png # Complete observability architectural design
-│   └── screenshots/                      # Project verification proof & dashboard evidence
-│       ├── 1-prometheus-targets.png      # Prometheus scrape targets showing UP state
-│       ├── 2-jaeger-traces.png           # Jaeger UI showing captured distributed traces
-│       ├── 3-grafana-datasources.png     # Grafana provisioned datasources (Prometheus, Loki, Jaeger)
-│       └── 4-grafana-unified-dashboard.png # Unified Grafana dashboard with metrics, logs & traces
+│   ├── screenshots/                      # Project verification proof & dashboard evidence
+│   │   ├── 1-prometheus-targets.png      # Prometheus scrape targets showing UP state
+│   │   ├── 2-jaeger-traces.png           # Jaeger UI showing captured distributed traces
+│   │   ├── 3-grafana-datasources.png     # Grafana provisioned datasources (Prometheus, Loki, Jaeger)
+│   │   ├── 4-grafana-unified-dashboard.png # Unified Grafana dashboard with metrics, logs & traces
+│   │   ├── 5-loki-log-exploration.png    # Loki log exploration with Trace ID correlation
+│   │   └── 6-docker-compose-ps.png       # Live container orchestration status verification
+│   ├── PROJECT_REPORT.md                 # Full project report markdown
+│   └── PROJECT_REPORT.pdf                # Submission-ready 2-page PDF report
 ├── grafana/
 │   └── provisioning/
 │       ├── dashboards/
-│       │   └── dashboard.json            # Exported unified dashboard model
+│       │   ├── dashboard.json            # Unified dashboard model (Metrics, Logs, Traces)
+│       │   └── dashboards.yml            # Automated dashboard provider definition
 │       └── datasources/
 │           └── datasources.yml           # Automated datasource provisioning definitions
 ├── loki/
@@ -62,7 +82,12 @@ complete-observability-system/
 │   └── prometheus.yml                    # Prometheus scrape configurations & polling intervals
 ├── promtail/
 │   └── promtail-config.yml               # Container log discovery via Docker daemon socket
+├── scripts/
+│   ├── generate_report_pdf.py            # Automated ReportLab PDF report compiler
+│   └── traffic-generator.sh              # Bash synthetic traffic generator (Linux / macOS / WSL)
+├── .gitignore                            # Root gitignore rules
 ├── docker-compose.yml                    # Multi-container orchestration stack
+├── LICENSE                               # Open-source MIT license
 └── README.md                             # Project documentation & run guide
 ```
 
@@ -73,7 +98,7 @@ complete-observability-system/
 ### 1. Prerequisites
 
 - Docker Engine (v24.0+) & Docker Compose (v2.20+)
-- Linux / WSL2 environment
+- Linux, macOS, or Windows (with WSL2 / Docker Desktop)
 
 ### 2. Start the Observability Stack
 
@@ -109,6 +134,12 @@ promtail                  promtail     Up
 
 Generate requests to populate metrics, trigger distributed traces, and write application logs:
 
+### Option A: Using Traffic Generator Script
+```bash
+./scripts/traffic-generator.sh
+```
+
+### Option B: Inline One-Liner
 ```bash
 for i in {1..40}; do
   curl -s http://localhost:5000/ > /dev/null
@@ -121,24 +152,24 @@ done
 
 ### Endpoints Overview
 
-| Endpoint   | Method | Purpose                    | Telemetry Emitted                                             |
-| :--------- | :----- | :------------------------- | :------------------------------------------------------------ |
-| `/`        | `GET`  | Service index & health     | HTTP 200, Info log                                            |
-| `/work`    | `GET`  | Simulated computation      | Latency (50–250ms), span `compute_job`                        |
-| `/slow`    | `GET`  | Simulated database latency | Latency (800–1500ms), span `slow_database_query`, warning log |
-| `/error`   | `GET`  | Failure simulation         | HTTP 500 error metric, error log                              |
-| `/metrics` | `GET`  | Prometheus telemetry pull  | Prometheus raw counter and histogram exposition               |
+| Endpoint | Method | Purpose | Telemetry Emitted |
+| :--- | :--- | :--- | :--- |
+| `/` | `GET` | Service index & health | HTTP 200, Info log |
+| `/work` | `GET` | Simulated computation | Latency (50–250ms), span `compute_job` |
+| `/slow` | `GET` | Simulated database latency | Latency (800–1500ms), span `slow_database_query`, warning log |
+| `/error` | `GET` | Failure simulation | HTTP 500 error metric, error log |
+| `/metrics` | `GET` | Prometheus telemetry pull | Prometheus raw counter and histogram exposition |
 
 ---
 
 ## Accessing Observability Portals
 
-| Tool           | URL                      | Default Credentials | Description                                        |
-| :------------- | :----------------------- | :------------------ | :------------------------------------------------- |
-| **Flask App**  | `http://localhost:5000`  | None                | Application API endpoints                          |
-| **Prometheus** | `http://localhost:9090`  | None                | Target status and PromQL query console             |
-| **Jaeger UI**  | `http://localhost:16686` | None                | Distributed trace search & span waterfall timeline |
-| **Grafana**    | `http://localhost:3000`  | `admin` / `admin`   | Unified monitoring & correlation UI                |
+| Tool | URL | Default Credentials | Description |
+| :--- | :--- | :--- | :--- |
+| **Flask App** | `http://localhost:5000` | None | Application API endpoints |
+| **Prometheus** | `http://localhost:9090` | None | Target status and PromQL query console |
+| **Jaeger UI** | `http://localhost:16686` | None | Distributed trace search & span waterfall timeline |
+| **Grafana** | `http://localhost:3000` | `admin` / `admin` | Pre-configured dashboard automatically visualizing metrics, logs, and traces |
 
 ---
 
@@ -147,13 +178,11 @@ done
 ### 1. Prometheus (PromQL)
 
 - **Request Throughput by Endpoint:**
-
   ```promql
   sum by (endpoint) (rate(flask_http_request_total[1m]))
   ```
 
 - **Average Request Latency:**
-
   ```promql
   rate(flask_http_request_duration_seconds_sum[1m]) / rate(flask_http_request_duration_seconds_count[1m])
   ```
@@ -161,13 +190,11 @@ done
 ### 2. Loki (LogQL)
 
 - **Stream Application Logs:**
-
   ```logql
   {container="flask-observability-app"}
   ```
 
 - **Filter Runtime Errors:**
-
   ```logql
   {container="flask-observability-app"} |= "ERROR"
   ```
@@ -181,39 +208,38 @@ done
 
 ## 📸 Verification & Screenshots
 
-|                    Prometheus Scraping Active                    |           Jaeger Distributed Trace Waterfall           |
-| :--------------------------------------------------------------: | :----------------------------------------------------: |
+| Prometheus Scraping Active | Jaeger Distributed Trace Waterfall |
+| :---: | :---: |
 | ![Prometheus Targets](docs/screenshots/1-prometheus-targets.png) | ![Jaeger Traces](docs/screenshots/2-jaeger-traces.png) |
 
-|                Grafana Pre-Provisioned Datasources                 |                       Unified Grafana Dashboard                        |
-| :----------------------------------------------------------------: | :--------------------------------------------------------------------: |
-| ![Grafana Datasources](docs/screenshots/3-grafana-datasources.png) | ![Grafana Dashboard](docs/screenshots/4-grafana-unified-dashboard.png) |
+| Loki Centralized Log Exploration | Unified Grafana Dashboard |
+| :---: | :---: |
+| ![Loki Log Exploration](docs/screenshots/5-loki-log-exploration.png) | ![Grafana Dashboard](docs/screenshots/4-grafana-unified-dashboard.png) |
+
+| Grafana Pre-Provisioned Datasources | Multi-Container Orchestration (`docker compose ps`) |
+| :---: | :---: |
+| ![Grafana Datasources](docs/screenshots/3-grafana-datasources.png) | ![Container Status](docs/screenshots/6-docker-compose-ps.png) |
 
 ---
 
 ## DevOps & SRE Interview Q&A
 
 ### 1. What are the three pillars of observability?
-
 - **Metrics:** Numeric values measured over time intervals (counters, gauges, histograms) optimal for alerting and trend detection.
 - **Logs:** Timestamped discrete event messages containing context and stack traces.
 - **Traces:** Request lifecycle representations across distributed microservices, identifying downstream latency bottlenecks.
 
 ### 2. What is the difference between monitoring and observability?
-
 - **Monitoring** tells you _when_ a system is failing by tracking predefined dashboards, thresholds, and health checks (answers: "Is it working?").
 - **Observability** is a measure of how well you can infer the internal states of a system based on external outputs (answers: "Why is it broken?" and helps debug unknown unknowns).
 
 ### 3. How does Prometheus scrape metrics?
-
 Prometheus utilizes a **pull-based** model. It periodically queries configured HTTP endpoints (`/metrics`) exposed by target services, decodes text-format metrics, and records them in its local time-series database (TSDB).
 
 ### 4. How does Grafana Loki differ from the ELK (Elasticsearch, Logstash, Kibana) stack?
-
 Loki indexes only the metadata/labels of logs rather than full-text indexing the message bodies. This reduces indexing storage overhead, CPU usage, and memory consumption compared to Elasticsearch while allowing seamless integration with Prometheus label schemas.
 
 ### 5. What is distributed request tracing and why is it essential?
-
 Distributed request tracing propagates unique trace context (Trace ID, Span ID) across network boundaries. It enables engineers to trace a request through multiple services, queues, and databases, identifying the exact component responsible for latency spikes or unhandled exceptions.
 
 ---
