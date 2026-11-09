@@ -5,7 +5,7 @@
 [![Loki](https://img.shields.io/badge/Logging-Grafana%20Loki%20v3.0-F46800?logo=grafana&logoColor=white)](#)
 [![Jaeger](https://img.shields.io/badge/Tracing-Jaeger%20v1.57-60D0E4?logo=jaeger&logoColor=white)](#)
 [![Grafana](https://img.shields.io/badge/Dashboard-Grafana%20v10.4-F46800?logo=grafana&logoColor=white)](#)
-[![Report](https://img.shields.io/badge/Internship_Report-PDF_2_Pages-10B981?logo=adobeacrobatreader&logoColor=white)](docs/PROJECT_REPORT.pdf)
+[![Report](https://img.shields.io/badge/Internship_Report-PDF_4_Pages-10B981?logo=adobeacrobatreader&logoColor=white)](docs/PROJECT_REPORT.pdf)
 
 An integrated, cloud-native observability platform combining **Prometheus** time-series metrics, **Grafana Loki & Promtail** centralized logging, and **Jaeger** distributed request tracing into unified **Grafana** visualization dashboards.
 
@@ -22,7 +22,7 @@ Per the Elevate Labs project specification, all deliverables are fully completed
 | **`docker-compose.yml`** | [`docker-compose.yml`](docker-compose.yml) | ✅ Complete |
 | **`Dashboards JSON`** | [`grafana/provisioning/dashboards/dashboard.json`](grafana/provisioning/dashboards/dashboard.json) | ✅ Complete |
 | **Log Samples & Trace Visualizations** | [`docs/screenshots/`](docs/screenshots/) (Prometheus, Jaeger, Loki, Grafana) | ✅ Complete |
-| **Project Report (1–2 Page PDF)** | [`docs/PROJECT_REPORT.pdf`](docs/PROJECT_REPORT.pdf) & [`docs/PROJECT_REPORT.md`](docs/PROJECT_REPORT.md) | ✅ Complete |
+| **Project Report (Executive PDF)** | [`docs/PROJECT_REPORT.pdf`](docs/PROJECT_REPORT.pdf) & [`docs/PROJECT_REPORT.md`](docs/PROJECT_REPORT.md) | ✅ Complete |
 
 ---
 
@@ -68,7 +68,7 @@ complete-observability-system/
 │   │   ├── 5-loki-log-exploration.png    # Loki log exploration with Trace ID correlation
 │   │   └── 6-docker-compose-ps.png       # Live container orchestration status verification
 │   ├── PROJECT_REPORT.md                 # Full project report markdown
-│   └── PROJECT_REPORT.pdf                # Submission-ready 2-page PDF report
+│   └── PROJECT_REPORT.pdf                # Executive 4-page project report PDF
 ├── grafana/
 │   └── provisioning/
 │       ├── dashboards/
@@ -83,7 +83,7 @@ complete-observability-system/
 ├── promtail/
 │   └── promtail-config.yml               # Container log discovery via Docker daemon socket
 ├── scripts/
-│   ├── generate_report_pdf.py            # Automated ReportLab PDF report compiler
+│   ├── generate_report_pdf.py            # Automated HTML-to-PDF project report compiler
 │   └── traffic-generator.sh              # Bash synthetic traffic generator (Linux / macOS / WSL)
 ├── .gitignore                            # Root gitignore rules
 ├── docker-compose.yml                    # Multi-container orchestration stack
